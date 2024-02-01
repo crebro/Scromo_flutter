@@ -1,22 +1,20 @@
-import 'dart:convert';
-import 'dart:math';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:mobilecontrol/sensors.dart';
+import 'package:mobilecontrol/sensors/accelerometer_sensor.dart';
+import 'package:mobilecontrol/sensors/gyroscope_sensor.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:sensors_plus/sensors_plus.dart';
 import 'package:web_socket_channel/io.dart';
-import 'package:web_socket_channel/web_socket_channel.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
   SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
-  runApp(MaterialApp(title: "Mobile Control", home: Beginning()
-      // home: MyHomePage(
-      //   title: "Flutter Mobile Control",
-      // ),
-      ));
+  runApp(MaterialApp(
+    title: "Mobile Control",
+    home: const Beginning(),
+    theme: ThemeData.dark(),
+    debugShowCheckedModeBanner: false,
+  ));
 }
 
 class Beginning extends StatefulWidget {
@@ -28,6 +26,8 @@ class Beginning extends StatefulWidget {
 
 class _BeginningState extends State<Beginning> {
   bool _compassHasPermissions = false;
+  final TextEditingController _pointingUrl =
+      TextEditingController(text: "ws://192.168.1.70:3000");
 
   void _fetchPermissionStatus() {
     Permission.locationWhenInUse.status.then((status) {
@@ -55,9 +55,85 @@ class _BeginningState extends State<Beginning> {
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         // Here we take the value from the MyHomePage object that was created by
         // the App.build method, and use it to set our appbar title.
-        title: Text("Hello there"),
+        title: const Text("Project SCRomo"),
       ),
-      body: Text("Hello my dear students"),
+      body: SingleChildScrollView(
+        scrollDirection: Axis.vertical,
+        child: Padding(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            children: [
+              TextField(
+                controller: _pointingUrl,
+              ),
+              Container(
+                margin: const EdgeInsets.symmetric(vertical: 20),
+                child: const Text(
+                  "Choose a sensor to use",
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                ),
+              ),
+              InkWell(
+                onTap: () {
+                  if (!_compassHasPermissions) {
+                    openAppSettings().then((opened) {
+                      //
+                    });
+                  }
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => AccelerometerSensorPage(
+                              title: "Accelerometer Sensor",
+                              socketchannel: IOWebSocketChannel.connect(
+                                  _pointingUrl.text))));
+                },
+                child: Container(
+                  decoration: BoxDecoration(
+                      color: const Color.fromARGB(255, 38, 116, 242),
+                      borderRadius: BorderRadius.circular(10)),
+                  width: double.infinity,
+                  height: 100,
+                  child: const Center(
+                      child: Text(
+                    "Accelerometer Sensor",
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+                  )),
+                ),
+              ),
+              InkWell(
+                onTap: () {
+                  if (!_compassHasPermissions) {
+                    openAppSettings().then((opened) {
+                      //
+                    });
+                  }
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => GyroscopeSensor(
+                              title: "Gyroscope Sensor Page",
+                              socketchannel: IOWebSocketChannel.connect(
+                                  _pointingUrl.text))));
+                },
+                child: Container(
+                  margin: const EdgeInsets.only(top: 20),
+                  decoration: BoxDecoration(
+                      color: const Color.fromARGB(255, 38, 116, 242),
+                      borderRadius: BorderRadius.circular(10)),
+                  width: double.infinity,
+                  height: 100,
+                  child: const Center(
+                      child: Text(
+                    "Gyroscope Sensor",
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+                  )),
+                ),
+              )
+            ],
+          ),
+        ),
+      ),
       floatingActionButton: FloatingActionButton(onPressed: () {
         if (!_compassHasPermissions) {
           openAppSettings().then((opened) {
@@ -70,7 +146,7 @@ class _BeginningState extends State<Beginning> {
                 builder: (context) => MyHomePage(
                     title: "Flutter Mobile Control",
                     socketchannel:
-                        IOWebSocketChannel.connect("ws://192.168.1.68:3000"))));
+                        IOWebSocketChannel.connect("ws://192.168.1.70:3000"))));
       }),
     );
   }

@@ -33,7 +33,7 @@ class _MyHomePageState extends State<MyHomePage> {
   MagnetometerEvent? _magnetometerEvent;
   GyroscopeEvent? _gyroscopeEvent;
 
-  // StreamSubscription? accelerometerStream;
+  StreamSubscription? accelerometerStream;
   StreamSubscription? gyroscopeSubscription;
   // Stream accelerometerStream;
 
@@ -209,6 +209,7 @@ class _MyHomePageState extends State<MyHomePage> {
     // TODO: implement dispose
     super.dispose();
     gyroscopeSubscription?.cancel();
+    // accelerometerStream?.cancel();
   }
 
   @override
@@ -248,7 +249,6 @@ class _MyHomePageState extends State<MyHomePage> {
           // wireframe for each widget.
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            _buildCompass(),
             // Stack(
             //   children: [
             //     Container(
@@ -320,54 +320,6 @@ class _MyHomePageState extends State<MyHomePage> {
             // }));
           },
           child: connected ? const Icon(Icons.add) : const Icon(Icons.abc)),
-    );
-  }
-
-  Widget _buildCompass() {
-    return StreamBuilder<CompassEvent>(
-      stream: FlutterCompass.events,
-      builder: (context, snapshot) {
-        if (snapshot.hasError) {
-          return Text('Error reading heading: ${snapshot.error}');
-        }
-
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return Center(
-            child: CircularProgressIndicator(),
-          );
-        }
-
-        double? direction = snapshot.data!.heading;
-
-        // if direction is null, then device does not support this sensor
-        // show error message
-        if (direction == null)
-          return Center(
-            child: Text("Device does not have sensors !"),
-          );
-
-        return Material(
-          shape: CircleBorder(),
-          clipBehavior: Clip.antiAlias,
-          elevation: 4.0,
-          child: Container(
-            padding: EdgeInsets.all(16.0),
-            alignment: Alignment.center,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-            ),
-            child: Transform.rotate(
-              angle: (direction * (math.pi / 180) * -1),
-              child: Container(
-                width: 200,
-                height: 200,
-                decoration:
-                    BoxDecoration(color: Colors.black, shape: BoxShape.circle),
-              ),
-            ),
-          ),
-        );
-      },
     );
   }
 }
