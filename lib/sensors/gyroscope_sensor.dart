@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
+import 'package:mobilecontrol/lib/shake.dart';
 import 'package:sensors_plus/sensors_plus.dart';
 import 'package:web_socket_channel/io.dart';
 
@@ -21,6 +22,7 @@ class _GyroscopeSensorState extends State<GyroscopeSensor> {
   StreamSubscription? gyroscopeSubscription;
 
   bool connected = false;
+  ShakeDetector? shake;
 
   // Map<String, double> magnetometerInitial = {'x': 0, 'y': 0, 'z': 0};
   double currentFacing = 0;
@@ -51,6 +53,11 @@ class _GyroscopeSensorState extends State<GyroscopeSensor> {
   @override
   void initState() {
     super.initState();
+
+    shake = ShakeDetector.autoStart(onPhoneShake: () {
+      widget.socketchannel.sink.add(jsonEncode({'event': "shake"}));
+    });
+
     checkConnection();
 
     gyroscopeSubscription =

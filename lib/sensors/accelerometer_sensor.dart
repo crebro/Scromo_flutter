@@ -125,6 +125,13 @@ class _AccelerometerSensorPageState extends State<AccelerometerSensorPage> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             Text("X: ${xTilt.toString()}\nZ: ${zTilt.toString()}"),
+            TextButton(
+                onPressed: () {
+                  widget.socketchannel.sink.add(jsonEncode({
+                    'event': "place",
+                  }));
+                },
+                child: const Text("Place"))
           ],
         ),
       ),
